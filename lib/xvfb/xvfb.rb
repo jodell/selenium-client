@@ -8,7 +8,7 @@
 module Xvfb
   class Xvfb
     attr_accessor :font_path, :resolution, :display, :redirect, 
-      :background, :nohup, :xvfb_cmd
+      :background, :nohup, :xvfb_cmd, :pid
 
     def initialize(options = {})
       @font_path  = options[:font_path]      || determine_font_path
@@ -32,14 +32,12 @@ module Xvfb
     end
 
     def start
-      @shell.run xvfb_cmd, {:background => options[:background], :nohup => options[:nohup]}
+      @pid = @shell.run(xvfb_cmd, { :background => options[:background], 
+                                    :nohup => options[:nohup], :pid => options[:background] }).chomp.to_i
     end
 
-    # I'm not sure if there's a more elegant way to shutdown xvfb
     def stop
-      xvfb_pid = `pidof #{prepare_xvfb_cmd}`
-      Process.kill :SIGTERM, xvfb_pid.to_i unless xvfb_pid.empty?
-      puts cmd if verbose?
+      Process.kill :SIGTERM, @pid
     end
 
     def determine_font_path
@@ -51,14 +49,11 @@ module Xvfb
           return ENV['XVFB_FONT_PATH'] if ENV['XVFB_FONT_PATH']
         end
       end
-      raise "#{RUBY_PLATOFRM} not supported by default, Export $XVFB_FONT_PATH with a path to your X11 fonts/misc directory"
+      raise "#{RUBY_PLATFORM} not supported by default, Export $XVFB_FONT_PATH with a path to your X11 fonts/misc directory"
     end
 
-    def screenshot
-      XvfbImport.screenshot
-    end
-
-    def screenshot_prereqs
+    def screenshot(options = {})
+      XvfbImport.screenshot(options)
     end
 
     def xvfb_prereq
@@ -79,18 +74,37 @@ MSG
     end
   end # Xvfb
 
-  # Avoiding RMagick dep
+  ##
+  # Simple use of imagemagick's import utility with Xvfb.
+  # Allows basic screenshots while headless.
+  #
+  # RMagick?
   class XvfbImport
     # -window
     # -display
-    def self.screenshot(opts = {})
-      cmd = [
-        "import",
-        "-window #{options[:window] || 'root'}",
-        "-display #{@display}",
-        "#{options['output'] || ENV['output'] || 'capture.png'}"
-      ] * ' '
-      @shell.run cmd, {:background => options[:background], :nohup => options[:nohup]}
+    class << self
+      def screenshot(options = {})
+        raise unsupported_msg unless supported?
+        cmd = [
+          "import",
+          "-window #{options[:window] || 'root'}",
+          "-display #{@display}",
+          "#{options['output'] || ENV['output'] || 'capture.png'}"
+        ] * ' '
+        @shell.run cmd, {:background => options[:background], :nohup => options[:nohup]}
+      end
+  
+      def supported?
+        RUBY_PLATFORM.match /nix/ && imagemagick_installed?
+      end
+  
+      def imagemagick_installed?
+  
+      end
+  
+      def unsupported_msg
+        "Platform: #{RUBY_PLATFORM} unsupported"
+      end
     end
   end
 

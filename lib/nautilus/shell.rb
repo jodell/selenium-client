@@ -3,7 +3,7 @@ module Nautilus
   class Shell
     
     def run(command, options = {})
-      sh build_command(command, options)
+      sh build_command(command, options), options
     end
 
     def build_command(command, options = {})
@@ -24,10 +24,10 @@ module Nautilus
       RUBY_PLATFORM =~ /mswin/
     end
     
-    def sh(command)
+    def sh(command, options = {})
       successful = system(command)
-      puts "sys command: #{successful}"
       raise "Error while running >>#{command}<<" unless successful
+      system('$!') if options[:pid]
     end
     
   end
