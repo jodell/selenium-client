@@ -12,6 +12,7 @@ require 'rubygems'
 gem "rspec", ">=1.2.8"
 require 'spec/rake/spectask'
 require 'selenium/rake/tasks'
+require 'xvfb/rake/tasks'
 
 CLEAN.include("COMMENTS")
 CLEAN.include('**/*.log', "target", "pkg", "test/integration/reporting/dummy_project/target")

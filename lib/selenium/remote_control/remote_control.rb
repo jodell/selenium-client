@@ -15,7 +15,7 @@ module Selenium
       end
       
       def start(options = {})
-        command = "java -jar \"#{jar_file}\""
+        command = (options[:headless] ? "DISPLAY=#{options[:headless]} " : '') + "java -jar \"#{jar_file}\""
         command << " -port #{@port}"
         command << " -timeout #{@timeout_in_seconds}"
         command << " -firefoxProfileTemplate '#{@firefox_profile}'" if @firefox_profile

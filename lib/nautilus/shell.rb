@@ -26,6 +26,7 @@ module Nautilus
     
     def sh(command)
       successful = system(command)
+      puts "sys command: #{successful}"
       raise "Error while running >>#{command}<<" unless successful
     end
     
