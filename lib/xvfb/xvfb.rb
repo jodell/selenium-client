@@ -1,4 +1,3 @@
-
 # Supports:
 # * Selenium RC Hook for headless testing
 # * Screenshots with imagemagick
@@ -6,7 +5,7 @@
 # -jodell 20100528
 #
 module Xvfb
-  class Xvfb
+  class XvfbServer
     attr_accessor :font_path, :resolution, :display, :redirect, 
       :background, :nohup, :xvfb_cmd, :pidfile
 
@@ -17,9 +16,9 @@ module Xvfb
       @pidfile    = options[:pidfile]        || '/tmp/xvfb-1.pid'
       @redirect   = options[:redirect]       || " &> /dev/null"
       @background = options[:background]     || true
-      @background = options[:nohup]          || false
+      @nohup      = options[:nohup]          || false
       @screenshot = options[:screenshot_dir] || false
-      @shell = Nautilius::Shell.new
+      @shell = Nautilus::Shell.new
     end
 
     def xvfb_cmd
@@ -33,13 +32,13 @@ module Xvfb
     end
 
     def start
-      @shell.run xvfb_cmd, { :background => @background
+      @shell.run xvfb_cmd, { :background => @background,
                              :nohup => @nohup, 
                              :pidfile => @pidfile }
     end
 
     def stop
-      @shell.kill @pidfile
+      @shell.kill_from_pidfile @pidfile
     end
 
     def determine_font_path

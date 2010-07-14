@@ -23,7 +23,7 @@ module Selenium
     # Control. You will find the nightly build at 
     # http://nexus.openqa.org/content/repositories/snapshots/org/seleniumhq/selenium/server/selenium-server/
     class RemoteControlStartTask
-      attr_accessor :port, :timeout_in_seconds, :background, 
+      attr_accessor :name, :port, :timeout_in_seconds, :background, 
                     :wait_until_up_and_running, :additional_args,
                     :log_to, :nohup
       attr_reader :jar_file

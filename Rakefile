@@ -65,7 +65,7 @@ Rake::TestTask.new(:'test:unit') do |t|
 end
 
 # XVFB start tasks for headless
-Selenium::Rake::XvfbStartTask.new do |x|
+Xvfb::Rake::XvfbStartTask.new do |x|
   x.name = :'xvfb:start'
   x.resolution = '1024x768x24'
   x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'
@@ -75,7 +75,7 @@ Selenium::Rake::XvfbStartTask.new do |x|
   x.nohup = true
 end
 
-Selenium::Rake::XvfbStopTask.new do |x|
+Xvfb::Rake::XvfbStopTask.new do |x|
   x.name = :'xvfb:stop'
   x.resolution = '1024x768x24'
   x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'

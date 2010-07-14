@@ -10,7 +10,7 @@ module Selenium
     # end
     #    
     class RemoteControlStopTask
-      attr_accessor :host, :port, :timeout_in_seconds, :wait_until_stopped,
+      attr_accessor :name, :host, :port, :timeout_in_seconds, :wait_until_stopped,
                     :shutdown_command
 
       def initialize(name = :'selenium:rc:stop')
