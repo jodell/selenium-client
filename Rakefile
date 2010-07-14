@@ -64,7 +64,30 @@ Rake::TestTask.new(:'test:unit') do |t|
   t.warning = true
 end
 
+# XVFB start tasks for headless
+Selenium::Rake::XvfbStartTask.new do |x|
+  x.name = :'xvfb:start'
+  x.resolution = '1024x768x24'
+  x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'
+  x.pidfile = 'xvfb-1.pid'
+  x.redirect = ' &> /dev/null'
+  x.background = true
+  x.nohup = true
+end
+
+Selenium::Rake::XvfbStopTask.new do |x|
+  x.name = :'xvfb:stop'
+  x.resolution = '1024x768x24'
+  x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'
+  x.pidfile = 'xvfb-1.pid'
+  x.redirect = ' &> /dev/null'
+  x.background = true
+  x.nohup = true
+end
+
+# RC tasks
 Selenium::Rake::RemoteControlStartTask.new do |rc|
+  rc.name = :'selenium:rc:start'
   rc.port = 4444
   rc.timeout_in_seconds = 3 * 60
   rc.background = true
@@ -72,12 +95,21 @@ Selenium::Rake::RemoteControlStartTask.new do |rc|
   rc.wait_until_up_and_running = true
   rc.jar_file = SELENIUM_RC_JAR
   rc.additional_args << "-singleWindow"
+  if ENV['SELENIUM_XVFB_DISPLAY'] 
+    rc.display = ENV['SELENIUM_XVFB_DISPLAY'] 
+    Rake::Task[:"xvfb:start"].execute [] rescue nil
+  end
 end
 
 Selenium::Rake::RemoteControlStopTask.new do |rc|
+  rc.name = :'selenium:rc:stop'
   rc.host = "localhost"
   rc.port = 4444
   rc.timeout_in_seconds = 3 * 60
+  if ENV['SELENIUM_XVFB_DISPLAY'] 
+    rc.display = ENV['SELENIUM_XVFB_DISPLAY'] 
+    Rake::Task[:"xvfb:stop"].execute [] rescue nil
+  end
   rc.wait_until_stopped = true
 end
 
@@ -237,3 +269,5 @@ task :'rdoc:publish' => :rdoc do
 end
 
 task :package => [ :'test:unit' ]
+
+

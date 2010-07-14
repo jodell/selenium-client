@@ -2,7 +2,7 @@ module Selenium
   module RemoteControl
     
     class RemoteControl
-      attr_reader :host, :port, :timeout_in_seconds, :firefox_profile, :shutdown_command
+      attr_reader :host, :port, :timeout_in_seconds, :firefox_profile, :shutdown_command, :display
       attr_accessor :additional_args, :jar_file, :log_to
       
       def initialize(host, port, options={})
@@ -10,12 +10,13 @@ module Selenium
         @timeout_in_seconds = options[:timeout] || (2 * 60)
         @shutdown_command = options[:shutdown_command] || "shutDownSeleniumServer"
         @firefox_profile = options[:firefox_profile]
+        @display = options[:display] || '0.0'
         @additional_args = options[:additional_args] || []
         @shell = Nautilus::Shell.new
       end
       
       def start(options = {})
-        command = (options[:headless] ? "DISPLAY=#{options[:headless]} " : '') + "java -jar \"#{jar_file}\""
+        command = (options[:display] ? "DISPLAY=#{options[:display]} " : '') + "java -jar \"#{jar_file}\""
         command << " -port #{@port}"
         command << " -timeout #{@timeout_in_seconds}"
         command << " -firefoxProfileTemplate '#{@firefox_profile}'" if @firefox_profile

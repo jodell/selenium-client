@@ -8,12 +8,13 @@
 module Xvfb
   class Xvfb
     attr_accessor :font_path, :resolution, :display, :redirect, 
-      :background, :nohup, :xvfb_cmd, :pid
+      :background, :nohup, :xvfb_cmd, :pidfile
 
     def initialize(options = {})
       @font_path  = options[:font_path]      || determine_font_path
       @resolution = options[:resolution]     || '1024x768x24'
       @display    = options[:display]        || ':1'
+      @pidfile    = options[:pidfile]        || '/tmp/xvfb-1.pid'
       @redirect   = options[:redirect]       || " &> /dev/null"
       @background = options[:background]     || true
       @background = options[:nohup]          || false
@@ -32,12 +33,13 @@ module Xvfb
     end
 
     def start
-      @pid = @shell.run(xvfb_cmd, { :background => options[:background], 
-                                    :nohup => options[:nohup], :pid => options[:background] }).chomp.to_i
+      @shell.run xvfb_cmd, { :background => @background
+                             :nohup => @nohup, 
+                             :pidfile => @pidfile }
     end
 
     def stop
-      Process.kill :SIGTERM, @pid
+      @shell.kill @pidfile
     end
 
     def determine_font_path
@@ -78,33 +80,47 @@ MSG
   # Simple use of imagemagick's import utility with Xvfb.
   # Allows basic screenshots while headless.
   #
-  # RMagick?
+  # NOTE: RMagick?
   class XvfbImport
-    # -window
-    # -display
-    class << self
-      def screenshot(options = {})
-        raise unsupported_msg unless supported?
-        cmd = [
-          "import",
-          "-window #{options[:window] || 'root'}",
-          "-display #{@display}",
-          "#{options['output'] || ENV['output'] || 'capture.png'}"
-        ] * ' '
-        @shell.run cmd, {:background => options[:background], :nohup => options[:nohup]}
-      end
+    attr_accessor :shell, :timestamps, :basename, :display
+    def initialize(options = {})
+      @timestamps = options[:timestamps] || true
+      @display    = options[:display] || ':1'
+      @window     = options[:window] || 'root'
+      @basename   = options[:basename] || "xvfb_screen_shot_#{@window}"
+      @extension  = options[:extension] || 'png'
+      @shell = Nautilius::Shell.new
+    end
+    def screenshot(options = {})
+      raise RuntimeError, unsupported_msg unless supported?
+      cmd = [
+        "import",
+        "-window #{options[:window] || @window}",
+        "-display #{options[:display] || @display}",
+        gen_filename,
+      ] * ' '
+      @shell.run cmd, {:background => options[:background], :nohup => options[:nohup]}
+    end
+
+    def gen_filename
+      [ 
+        @basename,
+        (@timestamps ? Time.now.strftime("_%Y%m%d_%H%M%S") : ''),
+        '.',
+        @extension,
+      ].join
+    end
   
-      def supported?
-        RUBY_PLATFORM.match /nix/ && imagemagick_installed?
-      end
+    def supported?
+      imagemagick_installed?
+    end
   
-      def imagemagick_installed?
+    def imagemagick_installed?
+      @shell.run 'which import'
+    end
   
-      end
-  
-      def unsupported_msg
-        "Platform: #{RUBY_PLATFORM} unsupported"
-      end
+    def unsupported_msg
+      "<#{self.class}> Unsupported: Must have imagemagick installed"
     end
   end
 
