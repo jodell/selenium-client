@@ -19,6 +19,8 @@ module Xvfb
       @nohup      = options[:nohup]          || false
       @screenshot = options[:screenshot_dir] || false
       @shell = Nautilus::Shell.new
+      yield self if block_given?
+      puts "Pidfile set to #{@pidfile}"
     end
 
     def xvfb_cmd
@@ -89,6 +91,7 @@ MSG
       @basename   = options[:basename] || "xvfb_screen_shot_#{@window}"
       @extension  = options[:extension] || 'png'
       @shell = Nautilius::Shell.new
+      yield self if block_given?
     end
     def screenshot(options = {})
       raise RuntimeError, unsupported_msg unless supported?

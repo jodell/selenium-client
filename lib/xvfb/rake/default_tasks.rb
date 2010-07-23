@@ -1,11 +1,12 @@
 require 'xvfb/rake/tasks'
+require 'nautlius/shell'
 
 # Xvfb for headless servers
 Selenium::Rake::XvfbStartTask.new do |x|
   x.name = :'xvfb:start'
   x.resolution = '1024x768x24'
   x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'
-  x.pidfile = 'xvfb-1.pid'
+  x.pidfile = '/tmp/xvfb-1024x768x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
   x.nohup = true
@@ -15,7 +16,7 @@ Selenium::Rake::XvfbStopTask.new do |x|
   x.name = :'xvfb:stop'
   x.resolution = '1024x768x24'
   x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'
-  x.pidfile = 'xvfb-1.pid'
+  x.pidfile = '/tmp/xvfb-1024x768x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
   x.nohup = true
@@ -33,7 +34,7 @@ Selenium::Rake::XvfbStartTask.new do |x|
   x.name = :'xvfb:big:start'
   x.resolution = '1600x1200x24'
   x.display = ENV['SELENIUM_XVFB_LARGE_DISPLAY]'] || ':2'
-  x.pidfile = 'xvfb-2.pid'
+  x.pidfile = '/tmp/xvfb-1600x1200x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
   x.nohup = true
@@ -43,7 +44,7 @@ Selenium::Rake::XvfbStopTask.new do |x|
   x.name = :'xvfb:big:stop'
   x.resolution = '1600x1200x24'
   x.display = ENV['SELENIUM_XVFB_LARGE_DISPLAY]'] || ':2'
-  x.pidfile = 'xvfb-2.pid'
+  x.pidfile = '/tmp/xvfb-1600x1200x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
   x.nohup = true
@@ -61,7 +62,7 @@ Selenium::Rake::XvfbStartTask.new do |x|
   x.name = :'xvfb:small:start'
   x.resolution = '800x600x24'
   x.display = ENV['SELENIUM_XVFB_SMALL_DISPLAY]'] || ':3'
-  x.pidfile = 'xvfb-3.pid'
+  x.pidfile = '/tmp/xvfb-800x600x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
   x.nohup = true
@@ -71,7 +72,7 @@ Selenium::Rake::XvfbStopTask.new do |x|
   x.name = :'xvfb:small:stop'
   x.resolution = '800x600x24'
   x.display = ENV['SELENIUM_XVFB_SMALL_DISPLAY]'] || ':3'
-  x.pidfile = 'xvfb-3.pid'
+  x.pidfile = '/tmp/xvfb-800x600x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
   x.nohup = true
@@ -84,4 +85,9 @@ Selenium::Rake::XvfbScreenShotTask.new do |x|
   x.timestamps = true
 end
 
+# helper
+desc 'Kill all xvfb processes left in /tmp/xvfb-*.pid'
+task :'xvfb:killall' do
+  Nautilus::Shell.new.kill_all_from_pidfiles('/tmp/xvfb-*.pid')
+end
 

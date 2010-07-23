@@ -6,7 +6,7 @@ module Xvfb
         :background, :nohup, :xvfb_cmd, :name, :pidfile
 
       def initialize(name = :'xvfb:start')
-        @name = 'xvfb'
+        @name = :'xvfb:start'
         @font_path = '/usr/share/fonts/X11/misc'
         @resolution = '1024x768x24'
         @display = ':1'
@@ -27,12 +27,12 @@ module Xvfb
             x.display = @display
             x.pidfile = @pidfile
             x.redirect = @redirect
-            x.background = true
-            x.nohup = true
+            x.background = @background
+            x.nohup = @nohup
           end
 
           # Actually start xvfb
-          puts "Xvfb started on display: #{@display} with resolution: #{@resolution}" # if ENV['verbose']
+          puts "Xvfb started on display: #{@display} with resolution: #{@resolution} and pidfile: #{@pidfile}" # if ENV['verbose']
           xvfb.start
         end
       end
@@ -65,10 +65,10 @@ module Xvfb
             x.display = @display
             x.pidfile = @pidfile
             x.redirect = @redirect
-            x.background = true
-            x.nohup = true
+            x.background = @background
+            x.nohup = @nohup
           end
-          puts "Xvfb stopped on display: #{@display} with resolution: #{@resolution}" # if ENV['verbose']
+          puts "Xvfb stopped on display: #{@display} with resolution: #{@resolution} and pidfile #{@pidfile}" # if ENV['verbose']
           xvfb.stop
         end
       end

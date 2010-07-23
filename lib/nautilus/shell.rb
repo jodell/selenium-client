@@ -27,11 +27,14 @@ module Nautilus
     end
 
     def kill_from_pidfile(pidfile = @pidfile, sig = :TERM)
-      Process.kill(sig, File.read(pidfile).chomp.to_i) if File.exists?(pidfile)
+      if File.exists?(pidfile)
+        Process.kill(sig, File.read(pidfile).chomp.to_i) 
+        FileUtils.rm_rf pidfile
+      end
     end
 
-    def kill_all_from_pidfiles(sig = :TERM)
-      Dir['/tmp/nautilus.*'].each { |f| kill_from_pidfile(f, sig) }
+    def kill_all_from_pidfiles(glob = '/tmp/nautilus.*', sig = :TERM)
+      Dir[glob].each { |f| kill_from_pidfile(f, sig) }
     end
 
     def gen_pidfile
@@ -44,6 +47,7 @@ module Nautilus
    
     def sh(command, options = {})
       successful = system(command)
+      puts "Running cmd: #{command}"
       raise "Error while running >>#{command}<<" unless successful
     end
     

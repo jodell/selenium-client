@@ -64,26 +64,61 @@ Rake::TestTask.new(:'test:unit') do |t|
   t.warning = true
 end
 
-# XVFB start tasks for headless
+# Xvfb tasks for headless selenium
 Xvfb::Rake::XvfbStartTask.new do |x|
-  x.name = :'xvfb:start'
+  x.name = :'xvfb:1024x768x24:start'
   x.resolution = '1024x768x24'
-  x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'
-  x.pidfile = 'xvfb-1.pid'
+  x.display = ENV['SELENIUM_XVFB_1024x768x24_DISPLAY'] || ':1'
+  x.pidfile = '/tmp/xvfb-1024x768x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
-  x.nohup = true
+  x.nohup = false
 end
 
 Xvfb::Rake::XvfbStopTask.new do |x|
-  x.name = :'xvfb:stop'
+  x.name = :'xvfb:1024x768x24:stop'
   x.resolution = '1024x768x24'
-  x.display = ENV['SELENIUM_XVFB_DISPLAY]'] || ':1'
-  x.pidfile = 'xvfb-1.pid'
+  x.display = ENV['SELENIUM_XVFB_1024x768x24_DISPLAY'] || ':1'
+  x.pidfile = '/tmp/xvfb-1024x768x24.pid'
   x.redirect = ' &> /dev/null'
   x.background = true
-  x.nohup = true
+  x.nohup = false
 end
+
+Xvfb::Rake::XvfbStartTask.new do |x|
+  x.name = :'xvfb:1600x1200x24:start'
+  x.resolution = '1600x1200x24'
+  x.display = ENV['SELENIUM_XVFB_1600x1200x24_DISPLAY'] || ':2'
+  x.pidfile = '/tmp/xvfb-1600x1200x24.pid'
+  x.redirect = ' &> /dev/null'
+  x.background = true
+  x.nohup = false
+end
+
+Xvfb::Rake::XvfbStopTask.new do |x|
+  x.name = :'xvfb:1600x1200x24:stop'
+  x.resolution = '1600x1200x24'
+  x.display = ENV['SELENIUM_XVFB_1600x1200x24_DISPLAY'] || ':2'
+  x.pidfile = '/tmp/xvfb-1600x1200x24.pid'
+  x.redirect = ' &> /dev/null'
+  x.background = true
+  x.nohup = false
+end
+
+desc 'Kill all xvfb processes left in /tmp/xvfb-*.pid'
+task :'xvfb:killall' do
+  Nautilus::Shell.new.kill_all_from_pidfiles('/tmp/xvfb-*.pid')
+end
+
+desc 'Alias to xvfb:1024x768:start'
+task :'xvfb:start' => :'xvfb:1024x768x24:start'
+desc 'Alias to xvfb:1024x768:stop'
+task :'xvfb:stop' => :'xvfb:1024x768x24:stop'
+
+desc 'Alias to xvfb:1600x1200x24:start'
+task :'xvfb:big:start' => :'xvfb:1600x1200x24:start'
+desc 'Alias to xvfb:1600x1200x24:stop'
+task :'xvfb:big:stop' => :'xvfb:1600x1200x24:stop'
 
 # RC tasks
 Selenium::Rake::RemoteControlStartTask.new do |rc|
