@@ -91,3 +91,8 @@ task :'xvfb:killall' do
   Nautilus::Shell.new.kill_all_from_pidfiles('/tmp/xvfb-*.pid')
 end
 
+desc 'Display running Xvfb processes'
+task :'xvfb:list' do
+  Nautilus::Shell.new.run 'ps aux | grep -i [v]fb | grep -v list'
+end
+

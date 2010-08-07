@@ -110,6 +110,11 @@ task :'xvfb:killall' do
   Nautilus::Shell.new.kill_all_from_pidfiles('/tmp/xvfb-*.pid')
 end
 
+desc 'Display running Xvfb processes'
+task :'xvfb:list' do
+  Nautilus::Shell.new.run 'ps aux | grep -i [v]fb | grep -v list'
+end
+
 desc 'Alias to xvfb:1024x768:start'
 task :'xvfb:start' => :'xvfb:1024x768x24:start'
 desc 'Alias to xvfb:1024x768:stop'
